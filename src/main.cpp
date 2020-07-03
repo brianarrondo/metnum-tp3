@@ -10,7 +10,7 @@
 using namespace std;
 
 tuple<string, string> get_phrase_token(string line) {
-    string token = line.substr(1);
+    string token = line;
     unsigned int token_end = token.find('"');
     string attr = token.substr(0, token_end);
     token = token.substr(token_end + 2);
@@ -20,28 +20,6 @@ tuple<string, string> get_phrase_token(string line) {
 
 bool is_phrase_token(string line) {
     return line[0] == '"';
-}
-
-vector<string> split(string line, string delimiter) {
-    vector<string> V;
-    string token = line;
-    unsigned int token_end = 0;
-
-    string attr;
-    while (token_end < line.length()) {
-        if (is_phrase_token(token)) {
-            tuple<string, string> phrase_token = get_phrase_token(token);
-            token = get<0>(phrase_token);
-            attr = get<1>(phrase_token);
-        } else {
-            token_end = token.find(delimiter);
-            attr = token.substr(0, token_end);
-            token = token.substr(token_end + 1);
-        }
-        V.push_back(attr);
-    }
-
-    return V;
 }
 
 void print_real_state_ad(vector<string> real_state_ad) {
@@ -62,18 +40,58 @@ void read_csv(string input_csv) {
     }
 
     string line;
-    string delimiter = ",";
-    unsigned int index = 0;
-
     getline(file, line);
+
+
+    string attr;
+    string token = line;
+    string delimiter = ",";
+    unsigned int token_end = 0;
+    unsigned int cols_amounts = 23;
+
+    vector<string> real_state_ad(cols_amounts); 
 
     while (!file.eof()) {
         getline(file, line);
+        token = line;
 
         if (line.length() > 0) {
-            vector<string> real_state_ad = split(line, delimiter);
+            for (int i = 0; i < cols_amounts; ++i) {
+                // cout << "token: " << token << endl;
+                if (is_phrase_token(token)) {
+                    token = token.substr(1);
+                    // cout << "token: " << token << endl;
+                    int token_end = token.find('"');
+                    // cout << "token_end: " << token_end << endl;
+                    if (token_end == -1) {
+                        attr = token;
+                        while (token_end == -1) {
+                            getline(file, line);
+                            token = line;
+                            // cout << "token: " << token << endl;
+                            token_end = token.find('"');
+                            if (token_end != -1) {
+                                token = token.substr(0, token_end);
+                            }
+                            attr = attr + token;
+                        }
+                        // cout << "token: " << token << endl;
+                        token = line.substr(token_end + 2);
+                        // cout << "token: " << token << endl;
+                    } else {
+                        tuple<string, string> phrase_token = get_phrase_token(token);
+                        token = get<0>(phrase_token);
+                        attr = get<1>(phrase_token);
+                    }
+                } else {
+                    token_end = token.find(delimiter);
+                    attr = token.substr(0, token_end);
+                    token = token.substr(token_end + 1);
+                }
+                real_state_ad[i] = attr;
+            }
+
             print_real_state_ad(real_state_ad);
-            index++;
         }
     }
 
