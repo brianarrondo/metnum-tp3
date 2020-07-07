@@ -6,6 +6,7 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include "linear_regression.h"
 
 using namespace std;
 
@@ -125,7 +126,7 @@ tuple<string, string, int> get_phrase_token_attr(string token, string attr, ifst
     return make_tuple(token, attr, token_end);
 }
 
-void read_csv(string input_csv) {
+vector<real_state_ad> read_csv(string input_csv) {
     ifstream file;
 
     file.open(input_csv);
@@ -166,17 +167,19 @@ void read_csv(string input_csv) {
                     token = token.substr(token_end + 1);
                 }
                 set_real_state_ad(&ad, attr, i);
-                real_state_ads.push_back(ad);
             }
 
+            real_state_ads.push_back(ad);
             print_real_state_ad(ad);
         }
     }
 
     file.close();
+
+    return real_state_ads;
 }
 
-void read_input_params(int argc, char *argv[]) {
+vector<real_state_ad> read_input_params(int argc, char *argv[]) {
     if (argc < 3) {
         cout << "Debe ingresar 3 parametros de entrada" << endl;
         exit(1);
@@ -192,18 +195,72 @@ void read_input_params(int argc, char *argv[]) {
     cout<< "Output: " << output << endl;
     cout << endl;
 
-    read_csv(train_set);
+    return read_csv(train_set);
+}
+
+void real_state_ads_to_matrix(real_state_ad ad, Matrix &A, unsigned int i) {
+    A(i,0) = ad.antiguedad.length()? stod(ad.antiguedad) : 0;
+    A(i,1) = ad.habitaciones.length()? stod(ad.habitaciones) : 0;
+    A(i,2) = ad.garages.length()? stod(ad.garages) : 0;
+    A(i,3) = ad.banos.length()? stod(ad.banos) : 0;
+    A(i,4) = ad.metroscubiertos.length()? stod(ad.metroscubiertos) : 0;
+    A(i,5) = ad.metrostotales.length()? stod(ad.metrostotales) : 0;
+    A(i,6) = ad.idzona.length()? stod(ad.idzona) : 0;
+    A(i,7) = ad.lat.length()? stod(ad.lat) : 0;
+    A(i,8) = ad.lng.length()? stod(ad.lng) : 0;
+    A(i,9) = ad.fecha.length()? stod(ad.fecha) : 0;
+    A(i,10) = ad.gimnasio.length()? stod(ad.gimnasio) : 0;
+    A(i,11) = ad.usosmultiples.length()? stod(ad.usosmultiples) : 0;
+    A(i,12) = ad.piscina.length()? stod(ad.piscina) : 0;
+    A(i,13) = ad.escuelascercanas.length()? stod(ad.escuelascercanas) : 0;
+    A(i,14) = ad.centroscomercialescercanos.length()? stod(ad.centroscomercialescercanos) : 0;
+    A(i,15) = ad.precio.length()? stod(ad.precio) : 0;
+}
+
+Matrix remove_last_column(Matrix X) {
+    X.conservativeResize(X.rows(), X.cols() - 1);
+    return X;
+}
+
+Vector get_last_column(Matrix X) {
+    return X.col(X.cols() - 1);
 }
 
 int main(int argc, char** argv){
 
+    // Se parsean los datos del csv, transformandolos en un vector de anuncios inmobiliarios
     auto t0 = clock();
-    read_input_params(argc, argv);
+    vector<real_state_ad> real_state_ads = read_input_params(argc, argv);
     auto t1 = clock();
+    cout << "Cantidad de anuncios inmobiliarios: " << real_state_ads.size() << endl;
+
+    // Transformo el vector de anuncios inmobiliarios en una matriz (Eigen matrix)
+    unsigned int rows = real_state_ads.size();
+    unsigned int cols = 16;
+    Matrix train_matrix = Matrix(rows, cols);
+    for (unsigned int i = 0; i < real_state_ads.size(); ++i) {
+        real_state_ads_to_matrix(real_state_ads[i], train_matrix, i);
+    }
+
+    // Creo las matrices con los datos de "x" e "y" correspondientes para luego reformular el problema de Cuadrados Minimos Lineales
+    // X = matriz con todas las caracteristicas medibles (variables numericas) de un anuncio inmobiliarios
+    // x = se selecciona una de las caracteristicas de los anuncios inmobiliarios
+    // y = el precio del anuncio inmobiliario correspondiente en x
+    Matrix X_train = remove_last_column(train_matrix);
+    Matrix x_train = X_train.col(0);
+    Matrix y_train = get_last_column(train_matrix);
+
+
+    // Instanciamos el objeto LinearRegression
+    LinearRegression linear_regression = LinearRegression();
+
+    // Entrenaremos nuestro clasificador con los datos de entrenamiento
+    linear_regression.fit(x_train, y_train);
+
 
     double time = (double(t1 - t0)/CLOCKS_PER_SEC);
     cout << "Execution Time (read input params): " << time << " seconds" << endl;
     cout << endl;
 
-  return 0;
+    return 0;
 }
