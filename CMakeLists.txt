@@ -46,11 +46,9 @@ message(CMAKE_INSTALL_PREFIX = "${CMAKE_INSTALL_PREFIX}")
 install(TARGETS metnum DESTINATION ${CMAKE_INSTALL_PREFIX}/notebooks)
 
 # # Crear un binario para testing manteniendo las dependencias de python por separado
-# add_executable(tp2
-#         src/main.cpp
-#         src/knn.cpp
-#         src/pca.cpp
-#         src/eigen.cpp)
+add_executable(tp3
+         src/main.cpp
+         src/linear_regression.cpp)
 
 
 # si se quiere hacer un ejecutable "tp2" que incluya pybind11, utilizar las
