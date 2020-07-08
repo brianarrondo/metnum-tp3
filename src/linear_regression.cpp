@@ -14,19 +14,22 @@ LinearRegression::LinearRegression()
 
 void LinearRegression::fit(Matrix X, Matrix y)
 {
-	// Por el momento esta hecho para regresiones lineales simples
-	A = Matrix(X.rows(), 2);
-	A.col(0) = MatrixXd::Constant(X.rows(), 1, 1);
-	A.col(1) = X;
+    // Por el momento, la implementacion utiliza regresiones lineales simples
+    Matrix A = Matrix(X.rows(), 2);
+    A.col(0) = MatrixXd::Constant(X.rows(), 1, 1);
+    A.col(1) = X;
 
-	X = A.transpose() * A;
-	b = A.transpose() * y;
+    x = (A.transpose() * A).ldlt().solve(A.transpose() * y);
 }
 
 
 Matrix LinearRegression::predict(Matrix X)
 {
-    auto ret = MatrixXd::Zero(X.rows(), 1);
+    Vector y(X.rows());
+    for (int i = 0; i < X.rows(); ++i) {
+        y(i) = x(0) + x(1) * X(i);
+        // cout << y(i) << " = " << x(0) << " + " << x(1) << "*" << X(i) << endl;
+    }
 
-    return ret;
+    return y;
 }

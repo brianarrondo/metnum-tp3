@@ -10,58 +10,6 @@
 
 using namespace std;
 
-struct real_state_ad {
-    string id;
-    string titulo;
-    string descripcion;
-    string tipodepropiedad;
-    string direccion;
-    string ciudad;
-    string provincia;
-    string antiguedad;
-    string habitaciones;
-    string garages;
-    string banos;
-    string metroscubiertos;
-    string metrostotales;
-    string idzona;
-    string lat;
-    string lng;
-    string fecha;
-    string gimnasio;
-    string usosmultiples;
-    string piscina;
-    string escuelascercanas;
-    string centroscomercialescercanos;
-    string precio;
-};
-
-void set_real_state_ad(real_state_ad *ad, string attr, unsigned int i) {
-    if (i == 0) ad->id = attr;
-    if (i == 1) ad->titulo = attr;
-    if (i == 2) ad->descripcion = attr;
-    if (i == 3) ad->tipodepropiedad = attr;
-    if (i == 4) ad->direccion = attr;
-    if (i == 5) ad->ciudad = attr;
-    if (i == 6) ad->provincia = attr;
-    if (i == 7) ad->antiguedad = attr;
-    if (i == 8) ad->habitaciones = attr;
-    if (i == 9) ad->garages = attr;
-    if (i == 10) ad->banos = attr;
-    if (i == 11) ad->metroscubiertos = attr;
-    if (i == 12) ad->metrostotales = attr;
-    if (i == 13) ad->idzona = attr;
-    if (i == 14) ad->lat = attr;
-    if (i == 15) ad->lng = attr;
-    if (i == 16) ad->fecha = attr;
-    if (i == 17) ad->gimnasio = attr;
-    if (i == 18) ad->usosmultiples = attr;
-    if (i == 19) ad->piscina = attr;
-    if (i == 20) ad->escuelascercanas = attr;
-    if (i == 21) ad->centroscomercialescercanos = attr;
-    if (i == 22) ad->precio = attr;
-}
-
 tuple<string, string> get_phrase_token(string line) {
     string token = line;
     unsigned int token_end = token.find('"');
@@ -73,33 +21,6 @@ tuple<string, string> get_phrase_token(string line) {
 
 bool is_phrase_token(string line) {
     return line[0] == '"';
-}
-
-void print_real_state_ad(real_state_ad ad) {
-    cout << "Anuncio inmobiliario" << endl;
-    cout << "id: " << ad.id << endl;
-    cout << "titulo: " << ad.titulo << endl;
-    cout << "descripcion: " << ad.descripcion << endl;
-    cout << "tipodepropiedad: " << ad.tipodepropiedad << endl;
-    cout << "direccion: " << ad.direccion << endl;
-    cout << "ciudad: " << ad.ciudad << endl;
-    cout << "provincia: " << ad.provincia << endl;
-    cout << "antiguedad: " << ad.antiguedad << endl;
-    cout << "habitaciones: " << ad.habitaciones << endl;
-    cout << "garages: " << ad.garages << endl;
-    cout << "banos: " << ad.banos << endl;
-    cout << "metroscubiertos: " << ad.metroscubiertos << endl;
-    cout << "metrostotales: " << ad.metrostotales << endl;
-    cout << "idzona: " << ad.idzona << endl;
-    cout << "lat: " << ad.lat << endl;
-    cout << "lng: " << ad.lng << endl;
-    cout << "fecha: " << ad.fecha << endl;
-    cout << "gimnasio: " << ad.gimnasio << endl;
-    cout << "usosmultiples: " << ad.usosmultiples << endl;
-    cout << "piscina: " << ad.piscina << endl;
-    cout << "escuelascercanas: " << ad.escuelascercanas << endl;
-    cout << "centroscomercialescercanos: " << ad.centroscomercialescercanos << endl;
-    cout << "precio: " << ad.precio << endl << endl;
 }
 
 tuple<string, string, int> get_phrase_token_attr(string token, string attr, ifstream &file, string line) {
@@ -126,12 +47,58 @@ tuple<string, string, int> get_phrase_token_attr(string token, string attr, ifst
     return make_tuple(token, attr, token_end);
 }
 
-vector<real_state_ad> read_csv(string input_csv) {
+void print_real_state_ad(vector<string> ad) {
+    cout << "Anuncio inmobiliario" << endl;
+    cout << "id: " << ad[0] << endl;
+    cout << "titulo: " << ad[1] << endl;
+    cout << "descripcion: " << ad[2] << endl;
+    cout << "tipodepropiedad: " << ad[3] << endl;
+    cout << "direccion: " << ad[4] << endl;
+    cout << "ciudad: " << ad[5] << endl;
+    cout << "provincia: " << ad[6] << endl;
+    cout << "antiguedad: " << ad[7] << endl;
+    cout << "habitaciones: " << ad[8] << endl;
+    cout << "garages: " << ad[9] << endl;
+    cout << "banos: " << ad[10] << endl;
+    cout << "metroscubiertos: " << ad[11] << endl;
+    cout << "metrostotales: " << ad[12] << endl;
+    cout << "idzona: " << ad[13] << endl;
+    cout << "lat: " << ad[14] << endl;
+    cout << "lng: " << ad[15] << endl;
+    cout << "fecha: " << ad[16] << endl;
+    cout << "gimnasio: " << ad[17] << endl;
+    cout << "usosmultiples: " << ad[18] << endl;
+    cout << "piscina: " << ad[19] << endl;
+    cout << "escuelascercanas: " << ad[20] << endl;
+    cout << "centroscomercialescercanos: " << ad[21] << endl;
+    cout << "precio: " << ad[22] << endl << endl;
+}
+
+void set_real_state_ad_to_matrix(vector<string> ad, Matrix &A, unsigned int i) {
+    unsigned int index = 0;
+    for (int j = 7; j < ad.size(); ++j) {
+        double ad_attr = ad[j].length() ? stod(ad[j]) : 0;
+        A(i,index) = ad_attr;
+        index++;
+    }
+}
+
+Matrix remove_last_column(Matrix X) {
+    X.conservativeResize(X.rows(), X.cols() - 1);
+    return X;
+}
+
+Vector get_last_column(Matrix X) {
+    return X.col(X.cols() - 1);
+}
+
+// csv_type = 0 si se trata de datos de entrenamiento | 1 si se trata de datos de prueba
+vector<vector<string>> read_csv(string csv_input, unsigned int csv_type) {
     ifstream file;
 
-    file.open(input_csv);
+    file.open(csv_input);
     if (!file) {
-        cout << "Error al abrir el archivo: " << input_csv << endl;
+        cout << "Error al abrir el archivo: " << csv_input << endl;
         exit(1);
     }
 
@@ -143,9 +110,11 @@ vector<real_state_ad> read_csv(string input_csv) {
     string token = line;
     string delimiter = ",";
     unsigned int token_end = 0;
-    unsigned int cols_amounts = 23;
 
-    vector<real_state_ad> real_state_ads; 
+    // Si parseamos los datos de prueba tenemos 22 columnas
+    // Si parseamos los datos de entrenamiento tenemos 22 columnas + 1 columna correspondiente al  precio
+    unsigned int cols_amounts = csv_type ? 22 : 23;
+    vector<vector<string>> real_state_ads; 
 
     while (!file.eof()) {
 
@@ -153,7 +122,7 @@ vector<real_state_ad> read_csv(string input_csv) {
         token = line;
 
         if (line.length() > 0) {
-            real_state_ad ad;
+            vector<string> ad(cols_amounts);
             for (int i = 0; i < cols_amounts; ++i) {
 
                 if (is_phrase_token(token)) {
@@ -166,11 +135,11 @@ vector<real_state_ad> read_csv(string input_csv) {
                     attr = token.substr(0, token_end);
                     token = token.substr(token_end + 1);
                 }
-                set_real_state_ad(&ad, attr, i);
+                ad[i] = attr;
             }
 
             real_state_ads.push_back(ad);
-            print_real_state_ad(ad);
+            // print_real_state_ad(ad);
         }
     }
 
@@ -179,7 +148,9 @@ vector<real_state_ad> read_csv(string input_csv) {
     return real_state_ads;
 }
 
-vector<real_state_ad> read_input_params(int argc, char *argv[]) {
+
+int main(int argc, char** argv){
+
     if (argc < 3) {
         cout << "Debe ingresar 3 parametros de entrada" << endl;
         exit(1);
@@ -195,72 +166,58 @@ vector<real_state_ad> read_input_params(int argc, char *argv[]) {
     cout<< "Output: " << output << endl;
     cout << endl;
 
-    return read_csv(train_set);
-}
-
-void real_state_ads_to_matrix(real_state_ad ad, Matrix &A, unsigned int i) {
-    A(i,0) = ad.antiguedad.length()? stod(ad.antiguedad) : 0;
-    A(i,1) = ad.habitaciones.length()? stod(ad.habitaciones) : 0;
-    A(i,2) = ad.garages.length()? stod(ad.garages) : 0;
-    A(i,3) = ad.banos.length()? stod(ad.banos) : 0;
-    A(i,4) = ad.metroscubiertos.length()? stod(ad.metroscubiertos) : 0;
-    A(i,5) = ad.metrostotales.length()? stod(ad.metrostotales) : 0;
-    A(i,6) = ad.idzona.length()? stod(ad.idzona) : 0;
-    A(i,7) = ad.lat.length()? stod(ad.lat) : 0;
-    A(i,8) = ad.lng.length()? stod(ad.lng) : 0;
-    A(i,9) = ad.fecha.length()? stod(ad.fecha) : 0;
-    A(i,10) = ad.gimnasio.length()? stod(ad.gimnasio) : 0;
-    A(i,11) = ad.usosmultiples.length()? stod(ad.usosmultiples) : 0;
-    A(i,12) = ad.piscina.length()? stod(ad.piscina) : 0;
-    A(i,13) = ad.escuelascercanas.length()? stod(ad.escuelascercanas) : 0;
-    A(i,14) = ad.centroscomercialescercanos.length()? stod(ad.centroscomercialescercanos) : 0;
-    A(i,15) = ad.precio.length()? stod(ad.precio) : 0;
-}
-
-Matrix remove_last_column(Matrix X) {
-    X.conservativeResize(X.rows(), X.cols() - 1);
-    return X;
-}
-
-Vector get_last_column(Matrix X) {
-    return X.col(X.cols() - 1);
-}
-
-int main(int argc, char** argv){
-
-    // Se parsean los datos del csv, transformandolos en un vector de anuncios inmobiliarios
+    // Se parsean los datos del csv (entrenamiento y prueba), transformandolos en un vector de anuncios inmobiliarios (anuncio = vector<string>)
     auto t0 = clock();
-    vector<real_state_ad> real_state_ads = read_input_params(argc, argv);
+    vector<vector<string>> real_state_ads_train = read_csv(train_set, 0);
+    vector<vector<string>> real_state_ads_test = read_csv(test_set, 1);
     auto t1 = clock();
-    cout << "Cantidad de anuncios inmobiliarios: " << real_state_ads.size() << endl;
+    cout << "Cantidad de instancias de entrenamiento: " << real_state_ads_train.size() << endl;
+    cout << "Cantidad de instancias de prueba: " << real_state_ads_test.size() << endl << endl;
 
-    // Transformo el vector de anuncios inmobiliarios en una matriz (Eigen matrix)
-    unsigned int rows = real_state_ads.size();
-    unsigned int cols = 16;
-    Matrix train_matrix = Matrix(rows, cols);
-    for (unsigned int i = 0; i < real_state_ads.size(); ++i) {
-        real_state_ads_to_matrix(real_state_ads[i], train_matrix, i);
+    double time = (double(t1 - t0)/CLOCKS_PER_SEC);
+    cout << "Execution Time (read input params): " << time << " seconds" << endl << endl;
+
+    // Transformo el vector de instancias de entrenamiento en una matriz, considerando solo las caracteristicas medibles
+    unsigned int train_rows = real_state_ads_train.size();
+    unsigned int train_cols = 16;
+    Matrix train_matrix = Matrix(train_rows, train_cols);
+    for (unsigned int i = 0; i < train_rows; ++i) {
+        set_real_state_ad_to_matrix(real_state_ads_train[i], train_matrix, i);
     }
 
-    // Creo las matrices con los datos de "x" e "y" correspondientes para luego reformular el problema de Cuadrados Minimos Lineales
-    // X = matriz con todas las caracteristicas medibles (variables numericas) de un anuncio inmobiliarios
-    // x = se selecciona una de las caracteristicas de los anuncios inmobiliarios
-    // y = el precio del anuncio inmobiliario correspondiente en x
+    // Transformo el vector de instancias de prueba en una matriz, considerando solo las caracteristicas medibles
+    unsigned int test_rows = real_state_ads_test.size();
+    unsigned int test_cols = 15;
+    Matrix X_test = Matrix(test_rows, test_cols);
+    for (unsigned int i = 0; i < test_rows; ++i) {
+        set_real_state_ad_to_matrix(real_state_ads_test[i], X_test, i);
+    }
+
+    // Creo las matrices de instancias de entrenamiento, considerando solo algunas caracteristicas de los anuncios inmobiliarios
+    // X_train = matriz con todas las caracteristicas medibles (variables numericas) de un anuncio inmobiliario
+    // x_train = se selecciona una de las caracteristicas de los anuncios inmobiliarios
+    // y_train = el precio del anuncio inmobiliario correspondiente en x_train
     Matrix X_train = remove_last_column(train_matrix);
     Matrix x_train = X_train.col(0);
     Matrix y_train = get_last_column(train_matrix);
 
+    // Creo la matriz con instancias de prueba, seleccionando alguna de las caracteristicas de los anuncios
+    Matrix x_test = X_test.col(0);
 
     // Instanciamos el objeto LinearRegression
     LinearRegression linear_regression = LinearRegression();
 
-    // Entrenaremos nuestro clasificador con los datos de entrenamiento
+    // Entrenamos nuestro clasificador con los datos de entrenamiento
     linear_regression.fit(x_train, y_train);
 
+    // Predecimos las instancias de prueba
+    Vector y = linear_regression.predict(x_test);
 
-    double time = (double(t1 - t0)/CLOCKS_PER_SEC);
-    cout << "Execution Time (read input params): " << time << " seconds" << endl;
-    cout << endl;
+    cout << y << endl;
+
+    t1 = clock();
+    time = (double(t1 - t0)/CLOCKS_PER_SEC);
+    cout << "Execution Time (total): " << time << " seconds" << endl << endl;
 
     return 0;
 }

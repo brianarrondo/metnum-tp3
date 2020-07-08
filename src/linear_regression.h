@@ -10,6 +10,5 @@ public:
 
     Matrix predict(Matrix X);
 private:
-	Matrix A;
-	Matrix b;
+	Matrix x;
 };
