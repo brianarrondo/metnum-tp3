@@ -195,14 +195,18 @@ int main(int argc, char** argv){
 
     // Creo las matrices de instancias de entrenamiento, considerando solo algunas caracteristicas de los anuncios inmobiliarios
     // X_train = matriz con todas las caracteristicas medibles (variables numericas) de un anuncio inmobiliario
-    // x_train = se selecciona una de las caracteristicas de los anuncios inmobiliarios
-    // y_train = el precio del anuncio inmobiliario correspondiente en x_train
     Matrix X_train = remove_last_column(train_matrix);
-    Matrix x_train = X_train.col(0);
+
+    // x_train = se seleccionan algunas de las caracteristicas de los anuncios inmobiliarios
+    Matrix x_train = X_train;
+    x_train.conservativeResize(x_train.rows(), 2);
+
+    // y_train = el precio del anuncio inmobiliario correspondiente en x_train
     Matrix y_train = get_last_column(train_matrix);
 
     // Creo la matriz con instancias de prueba, seleccionando alguna de las caracteristicas de los anuncios
-    Matrix x_test = X_test.col(0);
+    Matrix x_test = X_train;
+    x_test.conservativeResize(x_test.rows(), 2);
 
     // Instanciamos el objeto LinearRegression
     LinearRegression linear_regression = LinearRegression();
