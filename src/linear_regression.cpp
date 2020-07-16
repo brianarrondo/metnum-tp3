@@ -27,7 +27,7 @@ Matrix LinearRegression::predict(Matrix X)
     Vector y(X.rows());
     for (int i = 0; i < X.rows(); ++i) {
         y(i) = x(0);
-        for (int j = 1; j <= x.rows(); ++j) {
+        for (int j = 1; j < x.rows(); ++j) {
             y(i) += x(j) * X(i,j-1);
         }
     }
